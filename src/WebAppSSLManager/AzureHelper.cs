@@ -140,9 +140,12 @@ namespace WebAppSSLManager
                                                             .Where(c => c.Issuer.Contains(Constants.DefaultCA))
                                                             .OrderByDescending(c => c.ExpirationDate)
                                                             .FirstOrDefault();
-            
-            if(existingCert == null)
+
+            if (existingCert == null)
+            {
+                _logger.LogInformation($"Did not find existing certificate, adding new certificate");
                 return true;
+            }
 
             TimeSpan timeUntilExpiry = existingCert.ExpirationDate - DateTime.Now;
 
@@ -164,9 +167,14 @@ namespace WebAppSSLManager
             
             var resource = await GetResourceConfigurationAsync();
 
-            _logger.LogInformation($"   Uploading Certificate");
+            _logger.LogInformation($"   Uploading Certificate {_pfxFileName}");
 
             var pfxByteArrayContent = await ReadFileFromBlobStorageToByteArrayAsync(_pfxFileName);
+
+            if(pfxByteArrayContent.length == 0)
+            {
+                _logger.LogInformation($"empty cert warning - storage retrieval failed");
+            }                 
 
             var certificate = await _azure.AppServices.AppServiceCertificates
                                         .Define($"{_hostname}_{DateTime.UtcNow.ToString("yyyyMMdd")}")
@@ -176,8 +184,12 @@ namespace WebAppSSLManager
                                         .WithPfxPassword(Settings.CertificatePassword)
                                         .CreateAsync();
 
+            _logger.LogInformation($"   Password {Settings.CertificatePassword}");
+            _logger.LogInformation($"   resource group {_resourcePlanResGroup}");
+            _logger.LogInformation($"   resource.Region {resource.Region}");
+
             var certificateThumbPrint = certificate.Thumbprint;
-            _logger.LogInformation($"   Certificate Uploaded");
+            _logger.LogInformation($"   Certificate Uploaded, new thumbprint {certificateThumbPrint}");
             _logger.LogInformation($"   Bindings to process: {resource.Hostnames.Count}");
 
             foreach (var hostname in resource.Hostnames)
