@@ -171,7 +171,7 @@ namespace WebAppSSLManager
 
             var pfxByteArrayContent = await ReadFileFromBlobStorageToByteArrayAsync(_pfxFileName);
 
-            if(pfxByteArrayContent.length == 0)
+            if(pfxByteArrayContent.Length == 0)
             {
                 _logger.LogInformation($"empty cert warning - storage retrieval failed");
             }                 
