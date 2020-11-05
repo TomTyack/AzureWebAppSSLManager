@@ -186,6 +186,7 @@ namespace WebAppSSLManager
 
             _logger.LogInformation($"   Password {Settings.CertificatePassword}");
             _logger.LogInformation($"   resource group {_resourcePlanResGroup}");
+            _logger.LogInformation($"   resource.Resource {resource.Resource.Id} {resource.Resource.Name}  {resource.Resource.Key}   {resource.Resource.Type}");
             _logger.LogInformation($"   resource.Region {resource.Region}");
 
             var certificateThumbPrint = certificate.Thumbprint;
