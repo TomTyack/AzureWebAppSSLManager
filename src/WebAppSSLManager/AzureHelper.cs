@@ -247,8 +247,8 @@ namespace WebAppSSLManager
                                         .Update()
                                         .DefineSslBinding()
                                             .ForHostname(hostname)
-                                            //.WithExistingCertificate(certificateThumbPrint)
-                                            .WithPfxByteArrayToUpload(pfxByteArrayContent, Settings.CertificatePassword)
+                                            .WithExistingCertificate(certificateThumbPrint)
+                                            //.WithPfxByteArrayToUpload(pfxByteArrayContent, Settings.CertificatePassword)
                                             .WithSniBasedSsl()
                                             .Attach()
                                         .ApplyAsync();
