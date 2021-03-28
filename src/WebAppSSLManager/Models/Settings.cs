@@ -8,7 +8,6 @@ namespace WebAppSSLManager.Models
         private static ILogger _logger;
 
         public static string SubscriptionID { get; private set; }
-        public static string TargetSubscriptionID { get; private set; }
         public static string ServicePrincipalClientID { get; private set; }
         public static string ServicePrincipalClientSecret { get; private set; }
         public static string ServicePrincipalTenantID { get; private set; }
@@ -25,7 +24,6 @@ namespace WebAppSSLManager.Models
             _logger = logger;
 
             SubscriptionID = Environment.GetEnvironmentVariable("SubscriptionID");
-            TargetSubscriptionID = Environment.GetEnvironmentVariable("TargetSubscriptionID");
             if (string.IsNullOrWhiteSpace(SubscriptionID))
             {
                 _logger.LogError("SubscriptionID environment variable is null");
