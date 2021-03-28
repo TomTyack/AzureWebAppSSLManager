@@ -242,8 +242,9 @@ namespace WebAppSSLManager
                         default:
                             var webApp = resource.Resource as IWebApp;
                             _logger.LogInformation($"       Updating '{hostname}' on WebApp '{webApp.Name}'");
-
-                            webApp = await webApp
+                            try
+                            {
+                                webApp = await webApp
                                         .Update()
                                         .DefineSslBinding()
                                             .ForHostname(hostname)
@@ -252,6 +253,22 @@ namespace WebAppSSLManager
                                             .WithSniBasedSsl()
                                             .Attach()
                                         .ApplyAsync();
+
+                            }
+                            catch (Exception exa)
+                            {
+                                _logger.LogError(exa, $"Re-attempt Error updating binding for '{hostname}' with certificate '{certificateThumbPrint}'");
+                                webApp = await webApp
+                                     .Update()
+                                     .DefineSslBinding()
+                                         .ForHostname(hostname)
+                                         //.WithExistingCertificate(certificateThumbPrint)
+                                         .WithPfxByteArrayToUpload(pfxByteArrayContent, Settings.CertificatePassword)
+                                         .WithSniBasedSsl()
+                                         .Attach()
+                                     .ApplyAsync();
+                            }
+
                             break;
                     }
 
