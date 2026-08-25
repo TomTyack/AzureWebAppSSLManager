@@ -18,6 +18,7 @@ namespace WebAppSSLManager.Models
         public static bool UseStaging { get; private set; }
         public static int BatchSize { get; private set; }
         public static TimeSpan TimeBeforeExpiryToRenew { get; private set; }
+        public static TimeSpan WaitTimeBeforeValidate { get; private set; }
 
         public static void Init(ILogger logger)
         {
@@ -96,6 +97,14 @@ namespace WebAppSSLManager.Models
             {
                 _logger.LogWarning("TimeBeforeExpiryToRenew environment variable is null or invalid. Reverting to default");
                 TimeBeforeExpiryToRenew = Constants.DefaultTimeBeforeExpiryToRenewCertificate;
+            }
+
+            if (int.TryParse(Environment.GetEnvironmentVariable("WaitTimeBeforeValidateInSeconds"), out int waitSeconds) && waitSeconds >= 0)
+                WaitTimeBeforeValidate = TimeSpan.FromSeconds(waitSeconds);
+            else
+            {
+                _logger.LogWarning("WaitTimeBeforeValidateInSeconds environment variable is null or invalid. Reverting to default");
+                WaitTimeBeforeValidate = Constants.DefaultWaitTimeBeforeValidate;
             }
         }
     }

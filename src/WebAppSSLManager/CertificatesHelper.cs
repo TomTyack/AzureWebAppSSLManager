@@ -125,6 +125,13 @@ namespace WebAppSSLManager
             await AzureHelper.RemoveDNSVerificationTXTRecord(recordName); //to be sure we start clean
             await AzureHelper.CreateDNSVerificationTXTRecord(recordName, dnsTxt);
 
+            // Validating immediately after creating the TXT record races Azure DNS propagation: Let's
+            // Encrypt can check before the record is live, which fails the challenge and flips the
+            // authorization out of "pending" - so every retry after that first failure errors with
+            // "authorization must be pending" instead of actually retrying. Give DNS time to propagate first.
+            _logger.LogInformation($"   Waiting {Settings.WaitTimeBeforeValidate.TotalSeconds}s for DNS propagation before validating...");
+            await Task.Delay(Settings.WaitTimeBeforeValidate);
+
             _logger.LogInformation($"   Validating DNS authorization challenge. Can take up to 90 seconds...");
             var validatedChallege = await dnsChallenge.Validate();
             var waitUntil = DateTime.Now.AddSeconds(90);

@@ -136,8 +136,11 @@ namespace WebAppSSLManager
         {
             ResourceConfiguration resource = await GetResourceConfigurationAsync();
 
+            // Not filtering by issuer here: Let's Encrypt rotates its intermediate CA name over time
+            // (was "Let's Encrypt Authority X3", then "R3", now "R11"/"R12"/"R13"/"YR1", etc.), so any
+            // hardcoded issuer match goes stale. ExistingCertificates is already scoped to this hostname
+            // by GetResourceConfigurationAsync, so picking the latest-expiring one here is sufficient.
             IAppServiceCertificate existingCert = resource.ExistingCertificates?
-                                                            .Where(c => c.Issuer.Contains(Constants.DefaultCA))
                                                             .OrderByDescending(c => c.ExpirationDate)
                                                             .FirstOrDefault();
 
